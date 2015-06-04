@@ -46,9 +46,12 @@ class LivejournalParser(FeedParser):
 
     def get_article(self, page_url):
         soup = BeautifulSoup(self.download_url(page_url))
-        h1 = soup.find('h1')
-        header = h1.string.strip()
-        article = soup.find('article', class_='entry-content')
+        h1 = soup.find(class_='entry-title')
+        if h1.string:
+            header = h1.string.strip()
+        else:
+            header = None
+        article = soup.find(class_='entry-content')
 
         s = str(article)
         item = FeedItem(header, s, None, None, page_url)
