@@ -55,9 +55,12 @@ class Parser(HTMLParser):
         self.current_text = ""
 
 class PdfSaver:
-    def __init__(self, filename):
+    def __init__(self, filename, font_path):
         self.filename = filename
         self.pdf = FPDF()
+        self.pdf.add_font('font', '', font_path, uni=True)
+        self.pdf.add_font('font', 'B', font_path, uni=True)
+        self.pdf.add_font('font', 'U', font_path, uni=True)
 
     def _expand_tags(self, html):
         s = html
@@ -97,7 +100,7 @@ class PdfSaver:
         title = item.title
         s = item.html_content
 
-        self.pdf.set_font('dejavu', '', 16)
+        self.pdf.set_font('font', '', 16)
         self.pdf.cell(0, 6, txt=title, align='C')
         self.pdf.ln(12)
 
@@ -108,19 +111,19 @@ class PdfSaver:
 
         parts = p.result
 
-        self.pdf.set_font('dejavu', '', 12)
+        self.pdf.set_font('font', '', 12)
         for part in parts:
             if part[0] == "text":
                 if part[2]:
                     self.pdf.set_text_color(40, 40, 240)
-                    self.pdf.set_font('dejavu', 'U', 12)
+                    self.pdf.set_font('font', 'U', 12)
                 else:
                     self.pdf.set_text_color(10, 10, 10)
-                    self.pdf.set_font('dejavu', '', 12)
+                    self.pdf.set_font('font', '', 12)
                 self.pdf.write(5, part[1], part[2])
             if part[0] == "bold":
                 self.pdf.set_text_color(10, 10, 10)
-                self.pdf.set_font('dejavu', 'B', 12)
+                self.pdf.set_font('font', 'B', 12)
                 self.pdf.write(5, part[1])
             elif part[0] == "image":
                 try:
@@ -155,9 +158,6 @@ class PdfSaver:
         return items
 
     def save(self, parser, index_url, limit=None):
-        self.pdf.add_font('dejavu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
-        self.pdf.add_font('dejavu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
-        self.pdf.add_font('dejavu', 'U', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
         items = []
         i = 0
         while index_url:
