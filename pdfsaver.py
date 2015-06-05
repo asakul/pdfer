@@ -111,9 +111,15 @@ class PdfSaver:
         self.pdf.set_font('dejavu', '', 12)
         for part in parts:
             if part[0] == "text":
-                self.pdf.set_font('dejavu', '', 12)
-                self.pdf.write(5, part[1])
+                if part[2]:
+                    self.pdf.set_text_color(40, 40, 240)
+                    self.pdf.set_font('dejavu', 'U', 12)
+                else:
+                    self.pdf.set_text_color(10, 10, 10)
+                    self.pdf.set_font('dejavu', '', 12)
+                self.pdf.write(5, part[1], part[2])
             if part[0] == "bold":
+                self.pdf.set_text_color(10, 10, 10)
                 self.pdf.set_font('dejavu', 'B', 12)
                 self.pdf.write(5, part[1])
             elif part[0] == "image":
@@ -131,9 +137,6 @@ class PdfSaver:
                             self.pdf.image(part[1], w=width / self.pdf.k)
                 except:
                     pass
-            elif part[0] == "link":
-                self.pdf.set_font('dejavu', '', 12)
-                self.pdf.write(5, part[2], part[1])
 
     def collect_items(self, parser, raw_items, limit):
         items = []
@@ -154,6 +157,7 @@ class PdfSaver:
     def save(self, parser, index_url, limit=None):
         self.pdf.add_font('dejavu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
         self.pdf.add_font('dejavu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
+        self.pdf.add_font('dejavu', 'U', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
         items = []
         i = 0
         while index_url:
