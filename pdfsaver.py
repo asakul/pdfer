@@ -141,13 +141,17 @@ class PdfSaver:
                 except:
                     pass
 
-    def collect_items(self, parser, raw_items, limit):
+    def collect_items(self, parser, raw_items, limit, start_time):
         items = []
         i = 0
         for item in raw_items:
             i += 1
             if limit and i > limit:
                 break
+
+            if start_time and item.timestamp < start_time:
+                continue
+
             print("Downloading {0} / {1}".format(i, len(raw_items)))
             new_item = parser.get_article(item.link)
             new_item.timestamp = item.timestamp
@@ -157,18 +161,24 @@ class PdfSaver:
             items.append(new_item)
         return items
 
-    def save(self, parser, index_url, limit=None):
+    def save(self, parser, index_url, limit=None, start_time=None):
         items = []
         i = 0
         while index_url:
             index = parser.get_index(index_url)
-            new_items = self.collect_items(parser, index[1], limit)
+            new_items = self.collect_items(parser, index[1], limit, start_time)
             i += len(new_items)
             items += new_items
             if limit:
                 print("Downloaded {0} / {1}".format(i, limit))
                 if i >= limit:
                     break
+
+            if start_time:
+                if len(new_items) == 0:
+                    print("Reached starting time")
+                    break
+
             else:
                 print("Downloaded {0} / *".format(i))
             index_url = index[0]

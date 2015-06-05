@@ -50,7 +50,7 @@ class LivejournalParser(FeedParser):
     def get_article(self, page_url):
         soup = BeautifulSoup(self.download_url(page_url))
         h1 = soup.find(class_='entry-title')
-        if h1.string:
+        if h1 and h1.string:
             header = h1.string.strip()
         else:
             header = None
