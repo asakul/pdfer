@@ -2,6 +2,7 @@
 from feedparsers.feedparser import FeedParser, FeedItem
 from bs4 import BeautifulSoup
 import re
+from utils.timestampparser import parse_timestamp
 
 class LivejournalParser(FeedParser):
     def __init__(self):
@@ -30,7 +31,9 @@ class LivejournalParser(FeedParser):
             timestamp = None
             abbr = entry.find(class_='updated')
             if abbr:
-                timestamp = abbr['title']
+                timestamp = parse_timestamp(abbr['title'])
+
+            print(timestamp)
 
             item = FeedItem(header_text, None, timestamp, tags_list, href)
             result.append(item)
