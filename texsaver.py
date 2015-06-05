@@ -83,8 +83,11 @@ class Parser(HTMLParser):
                 fname = unquote(posixpath.basename(p))
                 f = open(self.images_dir + "/" + fname, "wb")
                 f.write(data)
-                
-                self.out.write("\includegraphics{{{0}}}".format("images/" + fname))
+
+                if (w and w > 100) or (not w):
+                    self.out.write("\includegraphics[width=\\textwidth]{{{0}}}".format("images/" + fname))
+                else:
+                    self.out.write("\includegraphics{{{0}}}".format("images/" + fname))
 
         elif tag == "br":
             self.out.write("\n\n")
