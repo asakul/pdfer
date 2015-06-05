@@ -1,6 +1,10 @@
 
 import re
 from html.parser import HTMLParser
+from urllib.request import urlopen
+import os
+from urllib.parse import urlparse, unquote
+import posixpath
 
 default_beginning = r"""
 \documentclass[fontsize=9pt]{scrreprt}
@@ -12,6 +16,7 @@ default_beginning = r"""
 \usepackage{xltxtra}
 \usepackage{indentfirst}
 \usepackage{polyglossia}
+\usepackage{graphicx}
 \setmainlanguage{russian} 
 \setotherlanguage{english}
 \usepackage[margin=1in]{geometry}
@@ -50,12 +55,17 @@ def attr_value(attrs, key):
 
 
 class Parser(HTMLParser):
-    def __init__(self, out):
+    def __init__(self, out, root_dir):
         super().__init__()
         self.text_type = ["text"]
         self.link = None
         self.current_text = ""
         self.out = out
+        self.images_dir = root_dir + "/images"
+        try:
+            os.makedirs(self.images_dir)
+        except FileExistsError:
+            pass
 
     def handle_starttag(self, tag, attrs):
         if tag == "img":
@@ -65,7 +75,17 @@ class Parser(HTMLParser):
             h = attr_value(attrs, "height")
             if h:
                 h = float(h)
-            #self.result.append(("image", attr_value(attrs, "src"), w, h))
+            src = attr_value(attrs, "src")
+            if src:
+                img = urlopen(src)
+                data = img.read()
+                p = urlparse(src).path
+                fname = unquote(posixpath.basename(p))
+                f = open(self.images_dir + "/" + fname, "wb")
+                f.write(data)
+                
+                self.out.write("\includegraphics{{{0}}}".format("images/" + fname))
+
         elif tag == "br":
             self.out.write("\n\n")
         elif tag == "div":
@@ -102,7 +122,7 @@ class TexSaver:
         self.out.write(default_ending)
 
     def _make_chapter(self, item):
-        parser = Parser(self.out)
+        parser = Parser(self.out, os.path.dirname(self.filename))
         self.out.write('\\chapter{{{0}}}\n'.format(item.title))
         parser.feed(item.html_content)
 
