@@ -1,6 +1,7 @@
 
 from feedparsers.livejournal import LivejournalParser
 from pdfsaver import PdfSaver
+from texsaver import TexSaver
 import argparse
 import datetime
 
@@ -27,7 +28,7 @@ def main():
 
     lj = LivejournalParser()
     index_url = args.url
-    saver = PdfSaver(args.output, font)
+    saver = TexSaver(args.output)
     saver.save(lj, index_url, limit, start_time)
 
 if __name__ == "__main__":

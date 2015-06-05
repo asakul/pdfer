@@ -101,7 +101,7 @@ class PdfSaver:
         s = item.html_content
 
         self.pdf.set_font('font', '', 16)
-        self.pdf.cell(0, 6, txt=title, align='C')
+        self.pdf.multi_cell(0, 6, txt=title, align='C')
         self.pdf.ln(12)
 
 
@@ -127,6 +127,7 @@ class PdfSaver:
                 self.pdf.write(5, part[1])
             elif part[0] == "image":
                 try:
+                    self.pdf.ln(12)
                     if not part[2] or not part[3]:
                         self.pdf.image(part[1])
                     else:
